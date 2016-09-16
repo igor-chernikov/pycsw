@@ -1260,7 +1260,10 @@ class Csw2(object):
 
             if len(results) > 0:  # exists, keep identifier for update
                 LOGGER.debug('Service already exists, keeping identifier and results')
-                service_identifier = getattr(results[0], self.parent.context.md_core_model['mappings']['pycsw:Identifier'])
+                identifier_attr = self.parent.context.md_core_model['mappings']['pycsw:Identifier']
+                type_attr = self.parent.context.md_core_model['mappings']['pycsw:Type']
+                service_result = filter(lambda res: getattr(res, type_attr) == 'service', results)[0]
+                service_identifier = getattr(service_result, identifier_attr)
                 service_results = results
                 LOGGER.debug('Identifier is %s', service_identifier)
             #    return self.exceptionreport('NoApplicableCode', 'source',
@@ -1298,7 +1301,7 @@ class Csw2(object):
                 else:
                     src = self.parent.kvp['source']
 
-                setattr(record, self.parent.context.md_core_model['mappings']['pycsw:Source'],
+                setattr(record, self.parent.context.md_core_model['mappings']['pycsw:MdSource'],
                         src)
 
                 setattr(record, self.parent.context.md_core_model['mappings']['pycsw:InsertDate'],
@@ -1307,7 +1310,7 @@ class Csw2(object):
                 identifier = getattr(record,
                 self.parent.context.md_core_model['mappings']['pycsw:Identifier'])
                 source = getattr(record,
-                self.parent.context.md_core_model['mappings']['pycsw:Source'])
+                self.parent.context.md_core_model['mappings']['pycsw:MdSource'])
                 insert_date = getattr(record,
                 self.parent.context.md_core_model['mappings']['pycsw:InsertDate'])
                 title = getattr(record,
@@ -1338,7 +1341,7 @@ class Csw2(object):
 
                     if len(results) == 0:  # check for service identifier
                         LOGGER.debug('checking if service id exists (%s)', service_identifier)
-                        results = self.parent.repository.query_ids(ids=[service_identifier])
+                        # results = self.parent.repository.query_ids(ids=[service_identifier])
 
                 LOGGER.debug(str(results))
 
@@ -1351,7 +1354,7 @@ class Csw2(object):
                         return self.exceptionreport('NoApplicableCode',
                         'source', 'Harvest (insert) failed: %s.' % str(err))
                 else:  # existing record, it's an update
-                    if source != results[0].source:
+                    if source != getattr(results[0], self.parent.context.md_core_model['mappings']['pycsw:MdSource']):
                         # same identifier, but different source
                         return self.exceptionreport('NoApplicableCode',
                         'source', 'Insert failed: identifier %s in repository\

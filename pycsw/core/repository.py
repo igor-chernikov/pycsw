@@ -234,7 +234,7 @@ class Repository(object):
     def query_source(self, source):
         ''' Query by source '''
         column = getattr(self.dataset, \
-        self.context.md_core_model['mappings']['pycsw:Source'])
+        self.context.md_core_model['mappings']['pycsw:MdSource'])
 
         query = self.session.query(self.dataset).filter(column == source)
         return self._get_repo_filter(query).all()
